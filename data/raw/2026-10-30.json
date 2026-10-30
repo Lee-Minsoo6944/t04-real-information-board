@@ -1,0 +1,23 @@
+{
+  "fetched_at": "2026-10-30T02:35:28.541Z",
+  "request_url": "https://api.open-meteo.com/v1/forecast?latitude=36.3504&longitude=127.3845&current=temperature_2m&timezone=Asia%2FSeoul",
+  "response": {
+    "latitude": 36.35,
+    "longitude": 127.375,
+    "generationtime_ms": 0.03504753112792969,
+    "utc_offset_seconds": 32400,
+    "timezone": "Asia/Seoul",
+    "timezone_abbreviation": "GMT+9",
+    "elevation": 59,
+    "current_units": {
+      "time": "iso8601",
+      "interval": "seconds",
+      "temperature_2m": "°C"
+    },
+    "current": {
+      "time": "2026-10-30T11:30",
+      "interval": 900,
+      "temperature_2m": 16.2
+    }
+  }
+}
