@@ -3,6 +3,7 @@ import { liveAttempt, replayAttempt } from './adapter.js';
 import { loadPackage } from './package.js';
 import { checkExpected, runSelfTests } from './selftest.js';
 import { initFx, initKospi } from './refcards.js';
+import { initSummary } from './summary.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -208,6 +209,7 @@ async function main() {
   catch (e) { $('#daily-body').innerHTML = `<tr><td colspan="8">일별 기록 파일을 읽지 못했습니다: ${esc(e.message)}</td></tr>`; }
   renderDaily();
   initLive();
+  initSummary();
   initFx($('#ref-fx'));
   initKospi($('#ref-kospi'));
   window.addEventListener('online', () => $('#live-card .retry')?.click());
@@ -251,7 +253,7 @@ async function runFromUrl() {
 const only = new URLSearchParams(location.search).get('only');
 if (only) {
   document.querySelectorAll('main > section').forEach((s) => { if (!only.split(',').some((id) => s.querySelector(`#${id}`))) s.style.display = 'none'; });
-  document.querySelector('main > header').style.display = 'none';
+  document.querySelectorAll('.hero, .group-label').forEach((e) => { e.style.display = 'none'; });
   document.querySelectorAll('details').forEach((d) => { d.open = true; });
 }
 main();

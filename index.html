@@ -5,134 +5,213 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>대전 기온 정보판</title>
 <meta name="description" content="대전 현재 기온을 매일 기록하고, 데이터가 오지 않을 때도 정직하게 설명하는 정보판 (과제 4)">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root {
-  --bg: #b9c5d3; --on-bg: #17202b; --on-bg-muted: #33404e; --panel: #ffffff; --ink: #1d1f22; --muted: #6a6f76; --line: #e2e0d9;
-  --accent: #1f5fbf; --fresh: #1d7a46; --fresh-bg: #e3f3e9; --stale: #9a5b00; --stale-bg: #fdf0d9;
-  --error: #b42318; --error-bg: #fde8e6; --up: #c2410c; --down: #1f5fbf;
+  --bg: #c4cfdc; --on-bg: #17202b; --on-bg-muted: #3a4757;
+  --panel: #ffffff; --panel-2: #f4f6f9; --ink: #18202a; --muted: #66707c; --line: #e3e7ec;
+  --accent: #1f5fbf; --fresh: #157347; --fresh-bg: #e2f4ea; --stale: #9a5b00; --stale-bg: #fdf0d9;
+  --error: #b42318; --error-bg: #fde8e6; --up: #d0342c; --down: #1f5fbf;
+  --hero-1: #0d2340; --hero-2: #1d4f8a; --hero-ink: #ffffff; --hero-muted: #b9cbe2;
+  --shadow: 0 1px 2px rgba(16, 32, 56, .06), 0 10px 28px -12px rgba(16, 32, 56, .22);
+  --on-accent: #ffffff;
+  --radius: 16px;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #15171a; --on-bg: #e9e7e2; --on-bg-muted: #9aa0a8; --panel: #1e2125; --ink: #e9e7e2; --muted: #9aa0a8; --line: #2e3238;
+  :root { --bg: #111418; --on-bg: #e9e7e2; --on-bg-muted: #9aa3ae;
+    --panel: #1b1f25; --panel-2: #232830; --ink: #e9ebee; --muted: #9aa3ae; --line: #2c323b;
     --accent: #7aa7ff; --fresh: #6fd39a; --fresh-bg: #173326; --stale: #f2b85b; --stale-bg: #3a2c12;
-    --error: #ff8a80; --error-bg: #3d1a17; --up: #fb923c; --down: #7aa7ff; }
+    --error: #ff8a80; --error-bg: #3d1a17; --up: #ff7b72; --down: #7aa7ff;
+    --hero-1: #0a1626; --hero-2: #173a66; --hero-muted: #a8bad3;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px -12px rgba(0,0,0,.6); --on-accent: #0b1a30; }
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
-main { margin: 0; padding: 20px clamp(16px, 2.5vw, 32px) 48px; }
-header h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.01em; }
-header h1 { color: var(--on-bg); }
-header p { margin: 0; color: var(--on-bg-muted); }
-section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-top: 16px; }
-.lead a { overflow-wrap: anywhere; }
-@media (min-width: 1100px) {
-  main { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
-  main > header, main > footer { grid-column: 1 / -1; }
-  main > section { margin-top: 0; min-width: 0; }
-  main > section:last-of-type:nth-of-type(odd) { grid-column: 1 / -1; }
-}
-h2 { font-size: 17px; margin: 0 0 4px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
-h2 .n { color: var(--muted); font-weight: 500; font-size: 13px; }
-.lead { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.6 "Pretendard Variable", Pretendard, system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  -webkit-font-smoothing: antialiased; }
 a { color: var(--accent); }
-code { font-size: 12.5px; background: color-mix(in srgb, var(--line) 55%, transparent); padding: 1px 5px; border-radius: 4px; word-break: break-all; }
+
+/* ── 맨 위 요약 ───────────────────────── */
+.hero { background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); color: var(--hero-ink); }
+.hero-in { padding: 28px clamp(16px, 2.5vw, 32px) 30px; }
+.hero-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px 24px; flex-wrap: wrap; }
+.eyebrow { margin: 0 0 6px; font-size: 12.5px; font-weight: 600; letter-spacing: .06em; color: var(--hero-muted); }
+.hero h1 { margin: 0; font-size: clamp(26px, 3vw, 34px); font-weight: 800; letter-spacing: -0.02em; }
+.hero .sub { margin: 6px 0 0; color: var(--hero-muted); font-size: 14.5px; max-width: 60ch; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { font-size: 12.5px; padding: 5px 11px; border-radius: 999px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); color: var(--hero-ink); white-space: nowrap; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+@media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.kpi { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border-radius: 14px; text-decoration: none; color: var(--hero-ink);
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); transition: background .15s, transform .15s; min-width: 0; }
+.kpi:hover { background: rgba(255,255,255,.14); transform: translateY(-1px); }
+.kpi-main { background: #ffffff; color: #0d2340; border-color: transparent; }
+.kpi-main:hover { background: #f2f6fb; }
+.kpi-label { font-size: 13px; font-weight: 600; opacity: .8; display: flex; align-items: center; gap: 6px; }
+.kpi-label::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .35; }
+.kpi[data-state="fresh"] .kpi-label::before { background: #34c27a; opacity: 1; }
+.kpi[data-state="stale"] .kpi-label::before { background: #f2b85b; opacity: 1; }
+.kpi-val { font-size: clamp(26px, 2.6vw, 36px); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi-val small { font-size: .5em; font-weight: 600; margin-left: 4px; opacity: .7; }
+.kpi-sub { font-size: 12.5px; opacity: .78; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi[data-dir="up"] .kpi-val { color: #ff9b94; } .kpi[data-dir="down"] .kpi-val { color: #9cc2ff; }
+.kpi-main[data-dir="up"] .kpi-val { color: var(--up); } .kpi-main[data-dir="down"] .kpi-val { color: var(--down); }
+.kpi[data-state="stale"] .kpi-val { opacity: .6; }
+@media (max-width: 520px) { .kpis { gap: 8px; } .kpi { padding: 12px 13px; } .kpi-val { font-size: 23px; } .kpi-sub { font-size: 11.5px; white-space: normal; } }
+
+/* ── 본문 배치 ───────────────────────── */
+main { padding: 24px clamp(16px, 2.5vw, 32px) 48px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 1100px) {
+  main { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  main > * { grid-column: 1 / -1; }
+  main > .s-live { grid-column: span 4; }
+  main > .s-daily { grid-column: span 8; }
+  main > .s-pkg, main > .s-test, main > .s-trust { grid-column: span 4; }
+}
+.group-label { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 10px 2px -4px; color: var(--on-bg); }
+.group-label:first-child { margin-top: 0; }
+.group-label b { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+.group-label span { font-size: 13px; color: var(--on-bg-muted); }
+.group-label::after { content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--on-bg) 18%, transparent); align-self: center; min-width: 20px; }
+
+section { background: var(--panel); border-radius: var(--radius); padding: 22px 22px 20px; box-shadow: var(--shadow); min-width: 0; scroll-margin-top: 16px; }
+section.s-test-zone { background: color-mix(in srgb, var(--panel) 92%, var(--bg)); }
+h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 6px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+h2 .n { color: var(--muted); font-weight: 500; font-size: 12.5px; letter-spacing: 0; }
+.lead { color: var(--muted); margin: 0 0 16px; font-size: 13.5px; line-height: 1.65; }
+.lead a { overflow-wrap: anywhere; }
+code { font-size: 12px; background: var(--panel-2); border: 1px solid var(--line); padding: 0 5px; border-radius: 5px; word-break: break-all; }
 small { color: var(--muted); font-size: 12px; }
 .muted { color: var(--muted); }
+
+/* 카드 공통 */
 .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 600; font-size: 13px; }
-.badge.sm { padding: 1px 8px; font-size: 12px; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: 12.5px; }
+.badge.sm { padding: 1px 8px; font-size: 11.5px; }
 .badge.fresh { background: var(--fresh-bg); color: var(--fresh); }
 .badge.stale { background: var(--stale-bg); color: var(--stale); }
 .badge.error { background: var(--error-bg); color: var(--error); }
-.badge.loading, .badge.empty { background: var(--line); color: var(--muted); }
-.code { color: var(--muted); font-size: 13px; }
-.value-row { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 10px; flex-wrap: wrap; }
-.value { font-size: 56px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-.unit { font-size: 22px; color: var(--muted); }
+.badge.loading, .badge.empty { background: var(--panel-2); color: var(--muted); }
+.code { color: var(--muted); font-size: 12.5px; }
+.value-row { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 14px; flex-wrap: wrap; }
+.value { font-size: 64px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+.unit { font-size: 22px; color: var(--muted); font-weight: 600; }
 .is-stale .value { color: var(--muted); }
-.stale-tag { background: var(--stale-bg); color: var(--stale); font-weight: 600; font-size: 13px; padding: 2px 8px; border-radius: 6px; }
+.stale-tag { background: var(--stale-bg); color: var(--stale); font-weight: 700; font-size: 12.5px; padding: 2px 8px; border-radius: 6px; }
 .value-row.empty .unit { font-size: 15px; }
-.meta { display: grid; grid-template-columns: 110px 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
+.meta { display: grid; grid-template-columns: 104px 1fr; gap: 0; margin: 0; font-size: 13.5px; border-top: 1px solid var(--line); }
+.meta dt, .meta dd { padding: 6px 0; border-bottom: 1px solid var(--line); }
 .meta dt { color: var(--muted); }
 .meta dd { margin: 0; word-break: break-word; }
-.fail { margin-top: 14px; border-left: 4px solid var(--error); background: var(--error-bg); padding: 12px 14px; border-radius: 0 8px 8px 0; }
+.fail { margin-top: 14px; border-left: 4px solid var(--error); background: var(--error-bg); padding: 12px 14px; border-radius: 0 10px 10px 0; }
 .fail-timeout, .fail-rate_limited { border-color: var(--stale); background: var(--stale-bg); }
-.fail-title { font-weight: 700; margin-bottom: 4px; }
-.fail p { margin: 4px 0; font-size: 14px; }
-.fail-detail { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px !important; color: var(--muted); }
+.fail-title { font-weight: 800; margin-bottom: 4px; }
+.fail p { margin: 4px 0; font-size: 13.5px; }
+.fail-detail { font-family: ui-monospace, Consolas, monospace; font-size: 12px !important; color: var(--muted); }
 .kept { font-weight: 600; }
-button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 8px 14px; }
-button:hover { border-color: var(--accent); }
+
+button { font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 9px 15px; transition: border-color .15s, background .15s; }
+button:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--panel)); }
 button:disabled { opacity: .5; cursor: default; }
-button.retry { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; margin-top: 8px; }
+button.retry { background: var(--accent); color: var(--on-accent); border-color: var(--accent); margin-top: 8px; }
 button.ghost.retry { background: transparent; color: var(--accent); margin-top: 14px; }
+.sim-actions button:first-child, #run-tests { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+
 .cols { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; }
-@media (max-width: 760px) { .cols { grid-template-columns: 1fr; } .value { font-size: 46px; } }
-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { color: var(--muted); font-weight: 600; font-size: 12.5px; }
-td.ok { color: var(--fresh); font-weight: 600; }
-td.bad { color: var(--error); font-weight: 600; }
+@media (max-width: 760px) { .cols { grid-template-columns: 1fr; } .value { font-size: 50px; } }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+thead th { color: var(--muted); font-weight: 700; font-size: 12px; background: var(--panel-2); border-bottom: 0; }
+thead th:first-child { border-radius: 8px 0 0 8px; } thead th:last-child { border-radius: 0 8px 8px 0; }
+td.ok { color: var(--fresh); font-weight: 700; }
+td.bad { color: var(--error); font-weight: 700; }
 .table-wrap { overflow-x: auto; }
+@media (min-width: 761px) { #daily-table th, #daily-table td:nth-child(-n+4), #daily-table td:last-child { white-space: nowrap; } }
 @media (max-width: 760px) {
   #daily-table thead { display: none; }
-  #daily-table tr { display: block; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; padding: 6px 4px; }
+  #daily-table tr { display: block; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; padding: 6px 4px; }
   #daily-table td { display: grid; grid-template-columns: 90px 1fr; border: 0; padding: 3px 8px; }
   #daily-table td::before { content: attr(data-label); color: var(--muted); font-size: 12px; }
 }
-.change-box, .change-wait { margin-top: 14px; padding: 14px; border-radius: 10px; background: color-mix(in srgb, var(--line) 40%, transparent); }
+.change-box, .change-wait { margin-top: 16px; padding: 16px 18px; border-radius: 12px; background: var(--panel-2); }
 .change-label { color: var(--muted); font-size: 13px; }
-.change-val { font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.change-val { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .change-val.up { color: var(--up); } .change-val.down { color: var(--down); }
-.change-calc { font-size: 13px; color: var(--muted); }
-.change-wait p { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
-.sim-banner { background: var(--stale-bg); color: var(--stale); font-weight: 600; font-size: 13px; padding: 6px 10px; border-radius: 6px; margin-bottom: 12px; }
-#sim-buttons { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-bottom: 14px; }
-.fx { text-align: left; display: flex; flex-direction: column; gap: 2px; }
-.fx span { font-family: ui-monospace, Consolas, monospace; font-size: 12px; font-weight: 600; }
+.change-calc { font-size: 12.5px; color: var(--muted); }
+.change-wait p { margin: 4px 0 0; font-size: 13.5px; color: var(--muted); }
+
+.sim-banner { background: var(--stale-bg); color: var(--stale); font-weight: 700; font-size: 13px; padding: 8px 12px; border-radius: 10px; margin-bottom: 14px; }
+#sim-buttons { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.fx { text-align: left; display: flex; flex-direction: column; gap: 2px; font-weight: 500; }
+.fx span { font-family: ui-monospace, Consolas, monospace; font-size: 12px; font-weight: 700; }
 .fx small { font-size: 11.5px; }
-.fx.g-fail { border-left: 3px solid var(--error); }
-.fx.g-ok { border-left: 3px solid var(--fresh); }
-.sim-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-#sim-card { border: 1px dashed var(--line); border-radius: 10px; padding: 14px; }
-h3 { font-size: 14px; margin: 16px 0 6px; }
-#test-out { list-style: none; padding: 0; margin: 10px 0 0; font-size: 13.5px; }
-#test-out li { padding: 3px 0; }
+.fx.g-fail { border-left: 4px solid var(--error); }
+.fx.g-ok { border-left: 4px solid var(--fresh); }
+.sim-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+#sim-card { border: 1px dashed color-mix(in srgb, var(--muted) 40%, transparent); border-radius: 12px; padding: 16px; }
+h3 { font-size: 14px; font-weight: 800; margin: 18px 0 8px; }
+#test-out { list-style: none; padding: 0; margin: 12px 0 0; font-size: 13px; }
+#test-out li { padding: 4px 0; border-bottom: 1px solid var(--line); }
 #test-out .ok { color: var(--fresh); } #test-out .bad { color: var(--error); }
-ul.facts { margin: 0; padding-left: 18px; font-size: 14px; }
+ul.facts { margin: 0; padding: 0; list-style: none; font-size: 13.5px; display: grid; gap: 8px; }
+ul.facts li { padding-left: 22px; position: relative; }
+ul.facts li::before { content: "✓"; position: absolute; left: 0; color: var(--fresh); font-weight: 800; }
+footer { color: var(--on-bg-muted); font-size: 12.5px; padding-top: 8px; }
 footer a { color: var(--on-bg); }
-footer { color: var(--on-bg-muted); font-size: 12.5px; margin-top: 24px; }
 .receipts { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin-top: 10px; }
-.receipt { border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
-.receipt-h { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.receipt { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--panel-2); }
+.receipt-h { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
 .receipt pre { margin: 0; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
 .hash { font-size: 11px; }
-.ok { color: var(--fresh); font-weight: 600; } .bad { color: var(--error); font-weight: 600; }
-.reset-row td { background: color-mix(in srgb, var(--line) 45%, transparent); color: var(--muted); font-size: 12px; }
-details summary { cursor: pointer; color: var(--accent); font-size: 14px; margin-top: 8px; }
+.ok { color: var(--fresh); font-weight: 700; } .bad { color: var(--error); font-weight: 700; }
+.reset-row td { background: var(--panel-2); color: var(--muted); font-size: 12px; }
+details summary { cursor: pointer; color: var(--accent); font-size: 13.5px; font-weight: 600; margin-top: 12px; }
 .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 760px) { .ref-grid { grid-template-columns: 1fr; } }
-.ref-card { border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
-.ref-card h3 { margin: 0 0 8px; font-size: 15px; }
-.ref-card .value { font-size: 38px; }
-.ref-card .meta { grid-template-columns: 92px 1fr; font-size: 13.5px; }
+.ref-card { border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.ref-card h3 { margin: 0 0 10px; font-size: 15px; }
+.ref-card .value { font-size: 40px; }
+.ref-card .meta { grid-template-columns: 96px 1fr; font-size: 13px; }
 .ref-card .fail { margin-top: 10px; }
-.ref-note { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+.ref-note { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
 </style>
 </head>
 <body>
-<main>
-  <header>
-    <h1>대전 기온 정보판</h1>
-    <p>매일 대전 현재 기온을 기록하고 어제와 비교합니다. 데이터가 오지 않으면 그 이유와 마지막 정상값을 함께 보여 줍니다.</p>
-  </header>
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-top">
+      <div>
+        <p class="eyebrow">과제 4 · 오늘의 진짜 정보판</p>
+        <h1>대전 기온 정보판</h1>
+        <p class="sub">매일 대전 현재 기온을 기록하고 어제와 비교합니다. 데이터가 오지 않으면 그 이유와 마지막 정상값을 함께 보여 줍니다.</p>
+      </div>
+      <div class="hero-chips">
+        <span class="chip">로그인 없음</span>
+        <span class="chip">매일 09:00 KST 자동 기록</span>
+        <span class="chip">Asia/Seoul 기준</span>
+      </div>
+    </div>
+    <div class="kpis">
+      <a class="kpi kpi-main" id="kpi-temp" href="#h-live"><span class="kpi-label">대전 현재 기온</span><span class="kpi-val">—</span><span class="kpi-sub">불러오는 중…</span></a>
+      <a class="kpi" id="kpi-delta" href="#h-daily"><span class="kpi-label">어제 대비</span><span class="kpi-val">—</span><span class="kpi-sub">불러오는 중…</span></a>
+      <a class="kpi" id="kpi-fx" href="#h-ref"><span class="kpi-label">원/달러 환율 · 참고</span><span class="kpi-val">—</span><span class="kpi-sub">불러오는 중…</span></a>
+      <a class="kpi" id="kpi-kospi" href="#h-ref"><span class="kpi-label">코스피 · 참고</span><span class="kpi-val">—</span><span class="kpi-sub">불러오는 중…</span></a>
+    </div>
+  </div>
+</header>
 
-  <section aria-labelledby="h-live">
+<main>
+  <div class="group-label"><b>실제 데이터</b><span>공개 원천에서 받아 온 진짜 값</span></div>
+
+  <section class="s-live" aria-labelledby="h-live">
     <h2 id="h-live">① 지금 값 <span class="n">이 브라우저에서 실제 공개 원천을 바로 조회</span></h2>
     <p class="lead">출처: <a id="src-url" href="#" target="_blank" rel="noopener"></a> · 비밀키 없는 공개 API</p>
     <div id="live-card"></div>
   </section>
 
-  <section aria-labelledby="h-daily">
+  <section class="s-daily" aria-labelledby="h-daily">
     <h2 id="h-daily">② 일별 기록 (실제) <span class="n" id="daily-count"></span></h2>
     <p class="lead">GitHub Actions 가 매일 09:00 KST 에 같은 원천을 조회해 저장소의 <a href="data/daily.json" target="_blank">data/daily.json</a> 에 남깁니다. 고유키는 <code>signal_id + record_date</code>(Asia/Seoul 날짜)이며, 같은 날 다시 조회하면 같은 행을 갱신합니다. 각 행은 원자료 JSON 을 다시 정규화해 저장값·화면값과 맞는지 이 화면에서 대조합니다.</p>
     <div class="table-wrap">
@@ -148,7 +227,7 @@ details summary { cursor: pointer; color: var(--accent); font-size: 14px; margin
     </details>
   </section>
 
-  <section aria-labelledby="h-ref">
+  <section class="s-ref" aria-labelledby="h-ref">
     <h2 id="h-ref">참고 지표 <span class="n">환율 · 코스피 — 일별 기록·어제 대비·채점 대상이 아닙니다</span></h2>
     <p class="lead">과제의 “값 하나”는 위의 대전 기온입니다. 아래 두 값은 함께 보면 좋은 참고용이라 저장하거나 비교하지 않고, 받아 온 그대로 보여 줍니다. 받아 오지 못하면 기온과 똑같이 이유와 마지막 정상값을 보여 줍니다.</p>
     <div class="ref-grid">
@@ -157,7 +236,9 @@ details summary { cursor: pointer; color: var(--accent); font-size: 14px; margin
     </div>
   </section>
 
-  <section aria-labelledby="h-sim">
+  <div class="group-label"><b>검증 · 시험</b><span>합성 시험 파일로 실패와 회복을 재생하고, 규칙을 스스로 검사합니다</span></div>
+
+  <section class="s-sim s-test-zone" aria-labelledby="h-sim">
     <h2 id="h-sim">③ 실패 다섯 가지 합성 재생 <span class="n">공개 fixture · 합성 시험값만 사용 · 실제 기록과 분리</span></h2>
     <p class="lead">실제 조회와 같은 정규화·저장 함수를 쓰고, 외부 응답만 공개 fixture 의 transport(지연·상태 코드·오프라인)와 payload 로 바꿔 재생합니다. 각 단계 결과를 fixture 의 <code>expected</code> 와 바로 대조합니다. 합성 날짜(2026-08-24/25)는 실제 기록이 아닙니다.</p>
     <div class="sim-banner">합성 시험 화면 — 아래 값(pt)은 실제 기온이 아닙니다.</div>
@@ -181,7 +262,7 @@ details summary { cursor: pointer; color: var(--accent); font-size: 14px; margin
     </div>
   </section>
 
-  <section aria-labelledby="h-pkg">
+  <section class="s-pkg s-test-zone" aria-labelledby="h-pkg">
     <h2 id="h-pkg">④ 공개 꾸러미 대조</h2>
     <p class="lead">저장소에 그대로 넣은 공개 fixture 꾸러미를 이 브라우저에서 내려받아 SHA-256 을 계산하고 <a href="assets/t04-real-information-board-public-v1/asset-manifest.json" target="_blank">asset-manifest.json</a> 과 대조합니다.</p>
     <p id="pkg-sum">불러오는 중…</p>
@@ -191,14 +272,14 @@ details summary { cursor: pointer; color: var(--accent); font-size: 14px; margin
     </details>
   </section>
 
-  <section aria-labelledby="h-test">
+  <section class="s-test s-test-zone" aria-labelledby="h-test">
     <h2 id="h-test">⑤ 자체 시험 <span class="n" id="test-sum"></span></h2>
     <p class="lead">공개 재생 순서 세 가지(정상·각 실패·회복)를 expected 와 대조하고, 같은 날 3번·KST 자정 경계·실제 기록의 원자료 재정규화를 확인합니다.</p>
     <button id="run-tests">자체 시험 실행</button>
     <ul id="test-out"></ul>
   </section>
 
-  <section aria-labelledby="h-trust">
+  <section class="s-trust" aria-labelledby="h-trust">
     <h2 id="h-trust">⑥ 이 화면이 지키는 약속</h2>
     <ul class="facts">
       <li>비밀키·로그인·개인정보를 쓰지 않습니다. 원천은 공개 API 이며 요청 주소 전체가 위에 그대로 보입니다.</li>
@@ -209,7 +290,7 @@ details summary { cursor: pointer; color: var(--accent); font-size: 14px; margin
     </ul>
   </section>
 
-  <footer>Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0). 과제 4 · 오늘의 진짜 정보판.</footer>
+  <footer>Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0) · 환율: Frankfurter (ECB) · 코스피: Yahoo Finance (비공식, 참고용). 과제 4 · 오늘의 진짜 정보판.</footer>
 </main>
 <script type="module" src="src/app.js"></script>
 </body>
