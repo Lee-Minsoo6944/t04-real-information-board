@@ -221,5 +221,34 @@ async function main() {
     $('#test-sum').textContent = `${pass}/${results.length} 통과`;
     $('#test-out').innerHTML = results.map((r) => `<li class="${r.ok ? 'ok' : 'bad'}">${r.ok ? '✓' : '✗'} ${esc(r.name)}${r.ok ? '' : ` — ${esc(r.why)}`}</li>`).join('');
   });
+  await runFromUrl();
+}
+
+// 주소로 바로 재생: ?replay=normal | failures | recover | recovered | <fixture_id>, ?selftest=1
+async function runFromUrl() {
+  const q = new URLSearchParams(location.search);
+  const r = q.get('replay');
+  if (r && pkg) {
+    const fc = pkg.contract.fixture_contract;
+    const ids = {
+      normal: fc.success_sequence,
+      recover: fc.recovery_sequence.slice(0, -1),
+      recovered: fc.recovery_sequence,
+    }[r] || (pkg.fixtures[r] ? [...fc.failure_baseline_sequence, r] : null);
+    if (r === 'failures') { $('#seq-fail').click(); await new Promise((ok) => { const t = setInterval(() => { if (!simBusy && simLog.filter((l) => !l.reset).length >= 15) { clearInterval(t); ok(); } }, 100); }); }
+    else if (ids) { simLog = []; await seq(ids, `주소로 재생: ${r}`); }
+    if (!q.get('only')) $('#h-sim').scrollIntoView();
+  }
+  if (q.get('selftest')) { $('#run-tests').click(); await new Promise((ok) => { const t = setInterval(() => { if (/통과/.test($('#test-sum').textContent)) { clearInterval(t); ok(); } }, 100); }); if (!q.get('only')) $('#h-test').scrollIntoView(); }
+  const f = q.get('focus');
+  if (f && document.getElementById(f)) document.getElementById(f).scrollIntoView();
+}
+
+// ?only=h-sim 처럼 한 칸만 보이게 (화면 캡처용)
+const only = new URLSearchParams(location.search).get('only');
+if (only) {
+  document.querySelectorAll('main > section').forEach((s) => { if (!only.split(',').some((id) => s.querySelector(`#${id}`))) s.style.display = 'none'; });
+  document.querySelector('main > header').style.display = 'none';
+  document.querySelectorAll('details').forEach((d) => { d.open = true; });
 }
 main();
