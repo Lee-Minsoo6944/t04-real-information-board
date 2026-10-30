@@ -1,0 +1,8 @@
+{
+  "name": "t04-real-information-board",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "record": "node scripts/record-daily.mjs"
+  }
+}

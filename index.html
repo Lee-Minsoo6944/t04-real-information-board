@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>서울 기온 정보판</title>
+<meta name="description" content="서울 현재 기온을 매일 기록하고, 데이터가 오지 않을 때도 정직하게 설명하는 정보판 (과제 4)">
+<style>
+:root {
+  --bg: #f6f5f1; --panel: #ffffff; --ink: #1d1f22; --muted: #6a6f76; --line: #e2e0d9;
+  --accent: #1f5fbf; --fresh: #1d7a46; --fresh-bg: #e3f3e9; --stale: #9a5b00; --stale-bg: #fdf0d9;
+  --error: #b42318; --error-bg: #fde8e6; --up: #c2410c; --down: #1f5fbf;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #15171a; --panel: #1e2125; --ink: #e9e7e2; --muted: #9aa0a8; --line: #2e3238;
+    --accent: #7aa7ff; --fresh: #6fd39a; --fresh-bg: #173326; --stale: #f2b85b; --stale-bg: #3a2c12;
+    --error: #ff8a80; --error-bg: #3d1a17; --up: #fb923c; --down: #7aa7ff; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 28px 16px 64px; }
+header h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.01em; }
+header p { margin: 0; color: var(--muted); }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-top: 20px; }
+h2 { font-size: 17px; margin: 0 0 4px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+h2 .n { color: var(--muted); font-weight: 500; font-size: 13px; }
+.lead { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+a { color: var(--accent); }
+code { font-size: 12.5px; background: color-mix(in srgb, var(--line) 55%, transparent); padding: 1px 5px; border-radius: 4px; word-break: break-all; }
+small { color: var(--muted); font-size: 12px; }
+.muted { color: var(--muted); }
+.card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 600; font-size: 13px; }
+.badge.sm { padding: 1px 8px; font-size: 12px; }
+.badge.fresh { background: var(--fresh-bg); color: var(--fresh); }
+.badge.stale { background: var(--stale-bg); color: var(--stale); }
+.badge.error { background: var(--error-bg); color: var(--error); }
+.badge.loading, .badge.empty { background: var(--line); color: var(--muted); }
+.code { color: var(--muted); font-size: 13px; }
+.value-row { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 10px; flex-wrap: wrap; }
+.value { font-size: 56px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.unit { font-size: 22px; color: var(--muted); }
+.is-stale .value { color: var(--muted); }
+.stale-tag { background: var(--stale-bg); color: var(--stale); font-weight: 600; font-size: 13px; padding: 2px 8px; border-radius: 6px; }
+.value-row.empty .unit { font-size: 15px; }
+.meta { display: grid; grid-template-columns: 110px 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
+.meta dt { color: var(--muted); }
+.meta dd { margin: 0; word-break: break-word; }
+.fail { margin-top: 14px; border-left: 4px solid var(--error); background: var(--error-bg); padding: 12px 14px; border-radius: 0 8px 8px 0; }
+.fail-timeout, .fail-rate_limited { border-color: var(--stale); background: var(--stale-bg); }
+.fail-title { font-weight: 700; margin-bottom: 4px; }
+.fail p { margin: 4px 0; font-size: 14px; }
+.fail-detail { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px !important; color: var(--muted); }
+.kept { font-weight: 600; }
+button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 8px 14px; }
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: default; }
+button.retry { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; margin-top: 8px; }
+button.ghost.retry { background: transparent; color: var(--accent); margin-top: 14px; }
+.cols { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; }
+@media (max-width: 760px) { .cols { grid-template-columns: 1fr; } .value { font-size: 46px; } }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+td.ok { color: var(--fresh); font-weight: 600; }
+td.bad { color: var(--error); font-weight: 600; }
+.table-wrap { overflow-x: auto; }
+@media (max-width: 760px) {
+  #daily-table thead { display: none; }
+  #daily-table tr { display: block; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; padding: 6px 4px; }
+  #daily-table td { display: grid; grid-template-columns: 90px 1fr; border: 0; padding: 3px 8px; }
+  #daily-table td::before { content: attr(data-label); color: var(--muted); font-size: 12px; }
+}
+.change-box, .change-wait { margin-top: 14px; padding: 14px; border-radius: 10px; background: color-mix(in srgb, var(--line) 40%, transparent); }
+.change-label { color: var(--muted); font-size: 13px; }
+.change-val { font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.change-val.up { color: var(--up); } .change-val.down { color: var(--down); }
+.change-calc { font-size: 13px; color: var(--muted); }
+.change-wait p { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+.sim-banner { background: var(--stale-bg); color: var(--stale); font-weight: 600; font-size: 13px; padding: 6px 10px; border-radius: 6px; margin-bottom: 12px; }
+#sim-buttons { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.fx { text-align: left; display: flex; flex-direction: column; gap: 2px; }
+.fx span { font-family: ui-monospace, Consolas, monospace; font-size: 12px; font-weight: 600; }
+.fx small { font-size: 11.5px; }
+.fx.g-fail { border-left: 3px solid var(--error); }
+.fx.g-ok { border-left: 3px solid var(--fresh); }
+.sim-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+#sim-card { border: 1px dashed var(--line); border-radius: 10px; padding: 14px; }
+h3 { font-size: 14px; margin: 16px 0 6px; }
+#test-out { list-style: none; padding: 0; margin: 10px 0 0; font-size: 13.5px; }
+#test-out li { padding: 3px 0; }
+#test-out .ok { color: var(--fresh); } #test-out .bad { color: var(--error); }
+ul.facts { margin: 0; padding-left: 18px; font-size: 14px; }
+footer { color: var(--muted); font-size: 12.5px; margin-top: 24px; }
+.receipts { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin-top: 10px; }
+.receipt { border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+.receipt-h { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.receipt pre { margin: 0; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+.hash { font-size: 11px; }
+.ok { color: var(--fresh); font-weight: 600; } .bad { color: var(--error); font-weight: 600; }
+.reset-row td { background: color-mix(in srgb, var(--line) 45%, transparent); color: var(--muted); font-size: 12px; }
+details summary { cursor: pointer; color: var(--accent); font-size: 14px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>서울 기온 정보판</h1>
+    <p>매일 서울 현재 기온을 기록하고 어제와 비교합니다. 데이터가 오지 않으면 그 이유와 마지막 정상값을 함께 보여 줍니다.</p>
+  </header>
+
+  <section aria-labelledby="h-live">
+    <h2 id="h-live">① 지금 값 <span class="n">이 브라우저에서 실제 공개 원천을 바로 조회</span></h2>
+    <p class="lead">출처: <a id="src-url" href="#" target="_blank" rel="noopener"></a> · 비밀키 없는 공개 API</p>
+    <div id="live-card"></div>
+  </section>
+
+  <section aria-labelledby="h-daily">
+    <h2 id="h-daily">② 일별 기록 (실제) <span class="n" id="daily-count"></span></h2>
+    <p class="lead">GitHub Actions 가 매일 09:00 KST 에 같은 원천을 조회해 저장소의 <a href="data/daily.json" target="_blank">data/daily.json</a> 에 남깁니다. 고유키는 <code>signal_id + record_date</code>(Asia/Seoul 날짜)이며, 같은 날 다시 조회하면 같은 행을 갱신합니다. 각 행은 원자료 JSON 을 다시 정규화해 저장값·화면값과 맞는지 이 화면에서 대조합니다.</p>
+    <div class="table-wrap">
+      <table id="daily-table">
+        <thead><tr><th>KST 날짜</th><th>원자료 값</th><th>저장값</th><th>화면값</th><th>출처 시각</th><th>조회 시각</th><th>원자료</th><th>대조</th></tr></thead>
+        <tbody id="daily-body"><tr><td colspan="8" class="muted">불러오는 중…</td></tr></tbody>
+      </table>
+    </div>
+    <div id="change"></div>
+    <details>
+      <summary>날짜별 기록 값 (source_url · source_observed_at · normalized_value · unit)</summary>
+      <div class="receipts" id="receipts"></div>
+    </details>
+  </section>
+
+  <section aria-labelledby="h-sim">
+    <h2 id="h-sim">③ 실패 다섯 가지 합성 재생 <span class="n">공개 fixture · 합성 시험값만 사용 · 실제 기록과 분리</span></h2>
+    <p class="lead">실제 조회와 같은 정규화·저장 함수를 쓰고, 외부 응답만 공개 fixture 의 transport(지연·상태 코드·오프라인)와 payload 로 바꿔 재생합니다. 각 단계 결과를 fixture 의 <code>expected</code> 와 바로 대조합니다. 합성 날짜(2026-08-24/25)는 실제 기록이 아닙니다.</p>
+    <div class="sim-banner">합성 시험 화면 — 아래 값(pt)은 실제 기온이 아닙니다.</div>
+    <div class="sim-actions">
+      <button id="seq-normal">정상·일별 저장 재생</button>
+      <button id="seq-fail">실패 다섯 각각 재생</button>
+      <button id="seq-recover">오류 뒤 회복 준비 (→ 다시 시도)</button>
+      <button id="sim-reset">reset</button>
+    </div>
+    <div id="sim-buttons"></div>
+    <div class="cols">
+      <div id="sim-card"></div>
+      <div>
+        <h3 style="margin-top:0">합성 일별 기록 <span class="muted" id="sim-rows"></span></h3>
+        <table><thead><tr><th>날짜</th><th>record_id</th><th>값</th><th>성공 횟수</th></tr></thead><tbody id="sim-daily"></tbody></table>
+      </div>
+    </div>
+    <h3>재생 기록</h3>
+    <div class="table-wrap">
+      <table><thead><tr><th>fixture</th><th>virtual_now</th><th>freshness</th><th>error_code</th><th>마지막 정상값</th><th>delta</th><th>일별 행</th><th>expected 대조</th></tr></thead><tbody id="sim-log"></tbody></table>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-pkg">
+    <h2 id="h-pkg">④ 공개 꾸러미 대조</h2>
+    <p class="lead">저장소에 그대로 넣은 공개 fixture 꾸러미를 이 브라우저에서 내려받아 SHA-256 을 계산하고 <a href="assets/t04-real-information-board-public-v1/asset-manifest.json" target="_blank">asset-manifest.json</a> 과 대조합니다.</p>
+    <p id="pkg-sum">불러오는 중…</p>
+    <details>
+      <summary>파일별 SHA-256</summary>
+      <div class="table-wrap"><table><thead><tr><th>파일</th><th>bytes</th><th>계산한 SHA-256</th><th>일치</th></tr></thead><tbody id="pkg-files"></tbody></table></div>
+    </details>
+  </section>
+
+  <section aria-labelledby="h-test">
+    <h2 id="h-test">⑤ 자체 시험 <span class="n" id="test-sum"></span></h2>
+    <p class="lead">공개 재생 순서 세 가지(정상·각 실패·회복)를 expected 와 대조하고, 같은 날 3번·KST 자정 경계·실제 기록의 원자료 재정규화를 확인합니다.</p>
+    <button id="run-tests">자체 시험 실행</button>
+    <ul id="test-out"></ul>
+  </section>
+
+  <section aria-labelledby="h-trust">
+    <h2 id="h-trust">⑥ 이 화면이 지키는 약속</h2>
+    <ul class="facts">
+      <li>비밀키·로그인·개인정보를 쓰지 않습니다. 원천은 공개 API 이며 요청 주소 전체가 위에 그대로 보입니다.</li>
+      <li>출처 시각은 원천이 관측한 시각(<code>current.time</code>, 15분 단위)이고, 조회 시각은 이 값을 받아 온 시각입니다. 둘을 따로 보여 줍니다.</li>
+      <li>실패해도 마지막 정상값과 일별 기록을 지우지 않고 “오래된 값(stale)”으로 표시합니다.</li>
+      <li>변화값 = 같은 signal 의 바로 앞 날짜 기록과 비교한 방향과 크기 |현재 − 이전|. 하루 차이일 때만 “어제 대비”라고 씁니다.</li>
+      <li>두 번째 날 기록이 없으면 기다립니다. 비교를 만들려고 기록을 꾸며 넣지 않습니다.</li>
+    </ul>
+  </section>
+
+  <footer>Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0). 과제 4 · 오늘의 진짜 정보판.</footer>
+</main>
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
