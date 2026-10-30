@@ -100,6 +100,14 @@ footer { color: var(--muted); font-size: 12.5px; margin-top: 24px; }
 .ok { color: var(--fresh); font-weight: 600; } .bad { color: var(--error); font-weight: 600; }
 .reset-row td { background: color-mix(in srgb, var(--line) 45%, transparent); color: var(--muted); font-size: 12px; }
 details summary { cursor: pointer; color: var(--accent); font-size: 14px; margin-top: 8px; }
+.ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .ref-grid { grid-template-columns: 1fr; } }
+.ref-card { border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.ref-card h3 { margin: 0 0 8px; font-size: 15px; }
+.ref-card .value { font-size: 38px; }
+.ref-card .meta { grid-template-columns: 92px 1fr; font-size: 13.5px; }
+.ref-card .fail { margin-top: 10px; }
+.ref-note { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
 </style>
 </head>
 <body>
@@ -129,6 +137,15 @@ details summary { cursor: pointer; color: var(--accent); font-size: 14px; margin
       <summary>날짜별 기록 값 (source_url · source_observed_at · normalized_value · unit)</summary>
       <div class="receipts" id="receipts"></div>
     </details>
+  </section>
+
+  <section aria-labelledby="h-ref">
+    <h2 id="h-ref">참고 지표 <span class="n">환율 · 코스피 — 일별 기록·어제 대비·채점 대상이 아닙니다</span></h2>
+    <p class="lead">과제의 “값 하나”는 위의 대전 기온입니다. 아래 두 값은 함께 보면 좋은 참고용이라 저장하거나 비교하지 않고, 받아 온 그대로 보여 줍니다. 받아 오지 못하면 기온과 똑같이 이유와 마지막 정상값을 보여 줍니다.</p>
+    <div class="ref-grid">
+      <div class="ref-card" id="ref-fx"></div>
+      <div class="ref-card" id="ref-kospi"></div>
+    </div>
   </section>
 
   <section aria-labelledby="h-sim">

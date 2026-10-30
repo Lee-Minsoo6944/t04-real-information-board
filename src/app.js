@@ -2,6 +2,7 @@ import { SOURCE, TZ, ERROR_TEXT, resetState, comparisonFor, fmtComparison, fmtKs
 import { liveAttempt, replayAttempt } from './adapter.js';
 import { loadPackage } from './package.js';
 import { checkExpected, runSelfTests } from './selftest.js';
+import { initFx, initKospi } from './refcards.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -207,6 +208,8 @@ async function main() {
   catch (e) { $('#daily-body').innerHTML = `<tr><td colspan="8">일별 기록 파일을 읽지 못했습니다: ${esc(e.message)}</td></tr>`; }
   renderDaily();
   initLive();
+  initFx($('#ref-fx'));
+  initKospi($('#ref-kospi'));
   window.addEventListener('online', () => $('#live-card .retry')?.click());
   try {
     pkg = await loadPackage();
