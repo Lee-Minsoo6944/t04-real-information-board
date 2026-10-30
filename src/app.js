@@ -53,7 +53,7 @@ function renderCard(el, st, { onRetry, retryLabel = '다시 시도', synthetic =
 }
 
 // ── ① 실시간 조회 ────────────────────────────────
-const LIVE_KEY = 't04.live.v2';
+const LIVE_KEY = 't04.live.v3';
 let dailyDb = { daily_readings: [] };
 
 async function initLive() {
@@ -117,8 +117,8 @@ async function renderDaily() {
   const c = last ? comparisonFor(rows, last) : null;
   const f = fmtComparison(c);
   if (!f) {
-    el.innerHTML = `<div class="change-wait"><b>두 번째 실제 날짜 기록을 기다리는 중</b>
-      <p>지금은 ${esc(last?.record_date || '—')} 한 건뿐입니다. 기록은 매일 09:00 KST 에 자동 조회로 쌓이며, 비교값을 만들려고 기록을 꾸며 넣지 않습니다.</p></div>`;
+    el.innerHTML = `<div class="change-wait"><b>${last ? '두 번째' : '첫'} 실제 날짜 기록을 기다리는 중</b>
+      <p>${last ? `지금은 ${esc(last.record_date)} 한 건뿐입니다.` : '아직 저장된 실제 기록이 없습니다.'} 기록은 매일 09:00 KST 에 자동 조회로 쌓이며, 비교값을 만들려고 기록을 꾸며 넣지 않습니다.</p></div>`;
   } else {
     const days = Math.round((Date.parse(c.to.record_date) - Date.parse(c.from.record_date)) / 86400000);
     el.innerHTML = `<div class="change-box">

@@ -3,13 +3,13 @@
 // live adapter(Open-Meteo)와 replay adapter(공개 fixture)가 모두 이 파일의 같은 함수로 저장한다.
 
 export const TZ = 'Asia/Seoul';
-export const SIGNAL_ID = 'seoul-temperature-2m';
+export const SIGNAL_ID = 'daejeon-temperature-2m';
 
 export const SOURCE = {
   name: 'Open-Meteo Forecast API',
   home: 'https://open-meteo.com/',
-  url: 'https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978&current=temperature_2m&timezone=Asia%2FSeoul',
-  metric: '서울 현재 기온 (지상 2m)',
+  url: 'https://api.open-meteo.com/v1/forecast?latitude=36.3504&longitude=127.3845&current=temperature_2m&timezone=Asia%2FSeoul',
+  metric: '대전 현재 기온 (지상 2m)',
 };
 
 export const NORMALIZED_KEYS = Object.freeze([

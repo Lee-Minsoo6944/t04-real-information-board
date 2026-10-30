@@ -1,10 +1,10 @@
-# 서울 기온 정보판 (과제 4 · 오늘의 진짜 정보판)
+# 대전 기온 정보판 (과제 4 · 오늘의 진짜 정보판)
 
-서울 현재 기온을 매일 한 번 기록하고 직전 날짜 기록과 비교합니다. 데이터가 오지 않으면 실패 종류·다음 행동·마지막 정상값을 함께 보여 줍니다.
+대전 현재 기온을 매일 한 번 기록하고 직전 날짜 기록과 비교합니다. 데이터가 오지 않으면 실패 종류·다음 행동·마지막 정상값을 함께 보여 줍니다.
 
-- **값**: 서울 시청 부근 현재 기온 (지상 2m), 단위 °C, `signal_id = seoul-temperature-2m`
+- **값**: 대전광역시청 부근(36.3504, 127.3845) 현재 기온 (지상 2m), 단위 °C, `signal_id = daejeon-temperature-2m`
 - **출처**: [Open-Meteo Forecast API](https://open-meteo.com/) — 비밀키·로그인 없는 공개 API, 비개인 데이터
-  `https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978&current=temperature_2m&timezone=Asia%2FSeoul`
+  `https://api.open-meteo.com/v1/forecast?latitude=36.3504&longitude=127.3845&current=temperature_2m&timezone=Asia%2FSeoul`
 - **출처 시각** (`source_time`): 응답의 `current.time` (원천 관측 시각, 15분 단위, +09:00)
 - **조회 시각** (`fetched_at`): 이 값을 받아 온 시각 (UTC 로 저장, KST 로 표시)
 - **기준 시간대**: Asia/Seoul
@@ -34,11 +34,9 @@
 
 ## 실제 기록
 
-| KST 날짜 | 값 | 출처 시각 | 조회 시각 (UTC) | 원자료 |
-|---|---|---|---|---|
-| 2026-10-30 | 13.5 °C | 2026-10-30T11:00:00+09:00 | 2026-10-30T02:00:48.000Z | `data/raw/2026-10-30.json` |
+첫 실제 기록부터 GitHub Actions(`daily-record`)가 남깁니다. 기록 목록은 [data/daily.json](data/daily.json), 원 응답은 `data/raw/<날짜>.json` 에 있습니다. 기록을 손으로 꾸며 넣지 않습니다.
 
-두 번째 날 기록은 GitHub Actions(`daily-record`)가 다음 KST 날짜에 남깁니다. 기록을 손으로 꾸며 넣지 않습니다.
+> 처음에는 서울 기온으로 시작했다가 2026-10-30 에 대전 기온으로 바꿨습니다. 서울 기록 1건(13.5 °C)은 다른 지점 값이라 비교에서 빼고 Git 기록에만 남겼습니다.
 
 ## 비밀값
 
