@@ -14,6 +14,7 @@
 |---|---|---|
 | ① 지금 값 | 지금 이 순간 대전 기온 (실제 조회) | 보기만 하면 됩니다. "새로 조회"로 다시 받아 올 수 있어요 |
 | ② 일별 기록 | 하루 한 줄씩 쌓이는 실제 기록과 어제 대비 변화 | 각 줄의 "✓ 일치"를 확인 |
+| 참고 지표 | 원/달러 환율과 코스피 지수 (참고용, 기록하지 않음) | 보기만 하면 됩니다 |
 | ③ 실패 재생 | 데이터가 안 올 때 화면이 어떻게 바뀌는지 시험 | 버튼을 눌러 실패·회복을 재생 |
 | ④ 공개 꾸러미 대조 | 과제용 시험 파일이 원본과 같은지 확인 | 보기만 하면 됩니다 |
 | ⑤ 자체 시험 | 저장·실패·회복 규칙을 한 번에 검사 | "자체 시험 실행" 클릭 |
@@ -42,6 +43,21 @@
 - 각 줄은 **원자료 값 · 저장값 · 화면값**을 나란히 보여 주고, 페이지가 원본 응답을 다시 읽어 셋이 같으면 **✓ 일치**를 표시합니다.
 - 기록이 두 날짜 이상 쌓이면 아래에 **어제 대비 변화**(예: `+1.3 °C 상승`)와 계산식이 나옵니다. 기록이 하나뿐이면 "두 번째 실제 날짜 기록을 기다리는 중"이라고 솔직하게 표시합니다.
 - "날짜별 기록 값"을 펼치면 날짜마다 `source_url · source_observed_at · normalized_value · unit` 네 값을 그대로 복사할 수 있습니다.
+
+---
+
+## 참고 지표 — 환율 · 코스피
+
+![참고 지표: 원/달러 환율과 코스피](docs/images/06-reference.png)
+
+기온과 함께 보면 좋은 두 값을 **참고용으로만** 보여 줍니다. 과제의 "값 하나"는 대전 기온이고, 이 두 값은 일별 기록·어제 대비·채점에 들어가지 않습니다.
+
+| 카드 | 어디서 오나요 | 언제 바뀌나요 |
+|---|---|---|
+| 원/달러 환율 | [Frankfurter](https://frankfurter.dev/) (유럽중앙은행 기준환율) — 페이지를 열 때 브라우저가 바로 받아 옴 | 영업일 하루 한 번. 출처 시각은 기준일(날짜) |
+| 코스피 지수 | Yahoo Finance 공개 시세 (비공식) — 브라우저에서 바로 부를 수 없어 GitHub 기록 봇이 받아 둠 | 평일 09:20 · 12:20 · 15:20 (KST). 전일 종가 대비 변화도 표시 |
+
+참고 지표도 받아 오지 못하면 기온과 같은 방식으로 실패 이유·다음 행동·마지막 정상값(오래된 값)을 보여 줍니다.
 
 ---
 
@@ -135,6 +151,8 @@
 | `src/selftest.js` | 자체 시험 |
 | `scripts/record-daily.mjs` | 실제 원천 조회 → `data/daily.json`, `data/raw/<날짜>.json` |
 | `.github/workflows/daily.yml` | 매일 09:00 KST 에 기록 봇 실행 후 커밋 (Actions 탭에서 수동 실행 가능) |
+| `src/reference.js`, `src/refcards.js` | 참고 지표(환율·코스피) 정규화와 카드 |
+| `scripts/record-reference.mjs`, `.github/workflows/reference.yml` | 평일 하루 세 번 코스피를 받아 `data/reference.json` 에 남김 (일별 기록과 분리) |
 | `assets/t04-real-information-board-public-v1/` | 과제 공개 꾸러미 (바이트 그대로) |
 
 - 원천: `https://api.open-meteo.com/v1/forecast?latitude=36.3504&longitude=127.3845&current=temperature_2m&timezone=Asia%2FSeoul`
@@ -146,4 +164,4 @@
 
 </details>
 
-데이터: Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0)
+데이터: Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0) · 환율: [Frankfurter](https://frankfurter.dev/) (ECB) · 코스피: Yahoo Finance (비공식, 참고용)
