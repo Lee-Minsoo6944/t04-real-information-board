@@ -7,12 +7,12 @@
 <meta name="description" content="대전 현재 기온을 매일 기록하고, 데이터가 오지 않을 때도 정직하게 설명하는 정보판 (과제 4)">
 <style>
 :root {
-  --bg: #f6f5f1; --panel: #ffffff; --ink: #1d1f22; --muted: #6a6f76; --line: #e2e0d9;
+  --bg: #b9c5d3; --on-bg: #17202b; --on-bg-muted: #33404e; --panel: #ffffff; --ink: #1d1f22; --muted: #6a6f76; --line: #e2e0d9;
   --accent: #1f5fbf; --fresh: #1d7a46; --fresh-bg: #e3f3e9; --stale: #9a5b00; --stale-bg: #fdf0d9;
   --error: #b42318; --error-bg: #fde8e6; --up: #c2410c; --down: #1f5fbf;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #15171a; --panel: #1e2125; --ink: #e9e7e2; --muted: #9aa0a8; --line: #2e3238;
+  :root { --bg: #15171a; --on-bg: #e9e7e2; --on-bg-muted: #9aa0a8; --panel: #1e2125; --ink: #e9e7e2; --muted: #9aa0a8; --line: #2e3238;
     --accent: #7aa7ff; --fresh: #6fd39a; --fresh-bg: #173326; --stale: #f2b85b; --stale-bg: #3a2c12;
     --error: #ff8a80; --error-bg: #3d1a17; --up: #fb923c; --down: #7aa7ff; }
 }
@@ -20,7 +20,8 @@
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
 main { max-width: 980px; margin: 0 auto; padding: 28px 16px 64px; }
 header h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.01em; }
-header p { margin: 0; color: var(--muted); }
+header h1 { color: var(--on-bg); }
+header p { margin: 0; color: var(--on-bg-muted); }
 section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-top: 20px; }
 h2 { font-size: 17px; margin: 0 0 4px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
 h2 .n { color: var(--muted); font-weight: 500; font-size: 13px; }
@@ -91,7 +92,8 @@ h3 { font-size: 14px; margin: 16px 0 6px; }
 #test-out li { padding: 3px 0; }
 #test-out .ok { color: var(--fresh); } #test-out .bad { color: var(--error); }
 ul.facts { margin: 0; padding-left: 18px; font-size: 14px; }
-footer { color: var(--muted); font-size: 12.5px; margin-top: 24px; }
+footer a { color: var(--on-bg); }
+footer { color: var(--on-bg-muted); font-size: 12.5px; margin-top: 24px; }
 .receipts { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin-top: 10px; }
 .receipt { border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
 .receipt-h { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
